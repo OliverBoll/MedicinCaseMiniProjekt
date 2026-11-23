@@ -24,8 +24,8 @@ public class DagligFast : Ordination {
 	}
 
 	public override double doegnDosis() {
-		// TODO: Implement!
-        return -1;
+		double dagligDosis = getDoser().Sum(dosis => dosis.antal);
+		return dagligDosis;
 	}
 	
 	public Dosis[] getDoser() {
