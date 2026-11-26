@@ -131,16 +131,61 @@ public class DataService
     }
 
     public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato) {
-        // TODO: Implement!
-        return null!;
+
+        Patient? patient = db.Patienter
+            .FirstOrDefault(p => p.PatientId == patientId)
+            ?? throw new ArgumentException("Patient ikke fundet");
+        
+        Laegemiddel? laegemiddel = db.Laegemiddler
+            .FirstOrDefault(l => l.LaegemiddelId == laegemiddelId)
+            ?? throw new ArgumentException("laegemiddel ikke fundet");
+
+        if (startDato >= slutDato)
+        {
+            throw new ArgumentException("Slutdato skal være efter startdato");
+        }
+
+        PN pn = new PN(startDato, slutDato, antal, laegemiddel);
+
+        patient.ordinationer.Add(pn);
+
+        db.PNs.Add(pn);
+
+        db.SaveChanges();
+
+        return pn;
     }
 
     public DagligFast OpretDagligFast(int patientId, int laegemiddelId, 
         double antalMorgen, double antalMiddag, double antalAften, double antalNat, 
         DateTime startDato, DateTime slutDato) {
 
-        // TODO: Implement!
-        return null!;
+        Patient? patient = db.Patienter
+            .FirstOrDefault(p => p.PatientId == patientId)
+            ?? throw new ArgumentException("Patient ikke fundet");
+
+        Laegemiddel laegemiddel = db.Laegemiddler   
+            .FirstOrDefault(l => l.LaegemiddelId == laegemiddelId)
+            ?? throw new ArgumentException("Laegemiddel ikke fundet");     
+
+        if (startDato >= slutDato)
+        {
+            throw new ArgumentException("Slutdato skal være efter startdato");
+        }
+
+        if (antalMorgen < 0 || antalMiddag < 0 || antalAften < 0 || antalNat < 0)
+        {
+            throw new ArgumentException("Antal kan ikke være mindre end nul");
+        }
+
+        DagligFast dagligFast = new DagligFast(startDato, slutDato, laegemiddel, antalMorgen, antalMiddag, antalAften, antalNat);
+
+        patient.ordinationer.Add(dagligFast);
+
+        db.DagligFaste.Add(dagligFast);
+        db.SaveChanges();
+
+        return dagligFast;
     }
 
     public DagligSkæv OpretDagligSkaev(int patientId, int laegemiddelId, Dosis[] doser, DateTime startDato, DateTime slutDato) {
